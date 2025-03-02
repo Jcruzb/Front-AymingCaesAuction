@@ -12,6 +12,7 @@ import './App.css'
 import Home from './Views/Home/Home'
 import ProjectsList from './Views/Projects/ProjectsList'
 import ProjectCreateForm from './Views/Projects/ProjectsCreateForm'
+import CompanyList from './Views/Company/CompanyList'
 
 function App() {
 
@@ -24,8 +25,11 @@ function App() {
         <Route path='/home' element={<Home />} />
 
         {/* Projects */}
-        <Route path='/projects' element={<ProjectsList/>}/>
-        <Route path='/projectsCreateForm' element={<ProjectCreateForm/>}/>
+        <Route path='/projects' element={<ProjectsList />} />
+        <Route path='/projectsCreateForm' element={<ProjectCreateForm />} />
+
+        {/* Company */}
+        <Route path='/companies' element={<CompanyList />} />
 
       </Route>
 

@@ -25,7 +25,6 @@ const ProjectsList = () => {
   useEffect(() => {
     getProjects()
       .then(response => {
-        console.log(response)
         const rows = response.map(project => ({
           id: project._id,
           savingsOwner:project.savingsOwner,
