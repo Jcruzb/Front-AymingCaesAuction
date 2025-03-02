@@ -10,7 +10,7 @@ const ProjectCreateForm = () => {
   const formik = useFormik({
     initialValues: {
       title: '',
-      savingsOwner:'',
+      savingsOwner: '',
       projectType: 'Singular',
       standardizedProject: '',
       savingsGenerated: '',
@@ -23,10 +23,10 @@ const ProjectCreateForm = () => {
       projectType: Yup.string()
         .oneOf(['Singular', 'Estandarizado'], 'Tipo de proyecto inválido')
         .required('El tipo de proyecto es obligatorio'),
-      standardizedProject: Yup.string().when('projectType', {
-        is: 'Estandarizado',
-        then: Yup.string().required('Se requiere el proyecto estandarizado'),
-        otherwise: Yup.string().notRequired(),
+      standardizedProject: Yup.string().when('projectType', (projectType, schema) => {
+        return projectType === 'Estandarizado'
+          ? schema.required('Se requiere el proyecto estandarizado')
+          : schema;
       }),
       savingsGenerated: Yup.number()
         .typeError('Debe ser un número')
@@ -35,13 +35,12 @@ const ProjectCreateForm = () => {
     }),
     onSubmit: (values, helpers) => {
       // Si deseas enviar attachedDocuments como array, puedes separarlos por coma:
-      const projectData = {
-        ...values,
-        attachedDocuments: values.attachedDocuments
-          ? values.attachedDocuments.split(',').map((doc) => doc.trim())
-          : [],
-        savingsGenerated: Number(values.savingsGenerated),
-      };
+      const projectData = { ...values };
+      if (projectData.projectType !== 'Estandarizado') {
+        delete projectData.standardizedProject;
+      }
+
+      console.log(projectData)
 
       createProject(projectData)
         .then(() => {
