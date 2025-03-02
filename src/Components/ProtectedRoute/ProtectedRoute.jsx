@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuthContext } from '../../Contexts/AuthContext';
 import Navbar from "../Navbar/Navbar";

@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { createContext, useState, useContext, useEffect } from 'react';
 import { setAccessToken, getAccessToken, logout } from '../stores/AccessTokenStore';
 import { getCurrentUser } from '../Services/UserService';
@@ -44,10 +43,17 @@ export const AuthContextProvider = ({ children }) => {
     }
   }, [])
 
+  const handleLogout = () => {
+    logout(); // ← Llama a la función importada de AccessTokenStore
+    setUser(null); // ← Limpia el usuario en el estado del contexto
+    setIsAuthenticationFetched(false); // ← Resetea el estado de autenticación
+  };
+
   const value = {
     user: user || null,
     isAuthenticationFetched,
     login,
+    logout: handleLogout,
     getUser
   }
 

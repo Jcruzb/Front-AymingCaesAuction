@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
 import AppBar from '@mui/material/AppBar';
@@ -13,18 +14,25 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
+import { useAuthContext } from '../../Contexts/AuthContext';
+import { logout } from '../../stores/AccessTokenStore';
+
 
 // Array de páginas con etiqueta y ruta
 const pages = [
   { label: 'Ver las fichas', route: '/home' },
   { label: 'Registrar fichas', route: '/tra050form' }
 ];
-const settings = ['Logout'];
+const settings = [
+  { name: 'Logout', action:logout}
+];
 
 function Navbar() {
   const navigate = useNavigate();
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const { logout } = useAuthContext();
+
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -159,8 +167,8 @@ function Navbar() {
               onClose={handleCloseUserMenu}
             >
               {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
+                <MenuItem key={setting.name} onClick={() => {setting.action(); handleCloseUserMenu}}>
+                  <Typography sx={{ textAlign: 'center' }}>{setting.name}</Typography>
                 </MenuItem>
               ))}
             </Menu>
