@@ -10,6 +10,8 @@ import ProtectedRoute from './Components/ProtectedRoute/ProtectedRoute'
 
 import './App.css'
 import Home from './Views/Home/Home'
+import ProjectsList from './Views/Projects/ProjectsList'
+import ProjectCreateForm from './Views/Projects/ProjectsCreateForm'
 
 function App() {
 
@@ -20,6 +22,10 @@ function App() {
       <Route path='/login' element={<Login />} />
       <Route path="/" element={<ProtectedRoute />}>
         <Route path='/home' element={<Home />} />
+
+        {/* Projects */}
+        <Route path='/projects' element={<ProjectsList/>}/>
+        <Route path='/projectsCreateForm' element={<ProjectCreateForm/>}/>
 
       </Route>
 

@@ -2,13 +2,16 @@ import { useCallback, useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { loginMail as loginRequest } from '../../Services/AuthService';
-import { useNavigate, Navigate } from 'react-router-dom';
+import { useNavigate, Navigate, useLocation } from 'react-router-dom';
 import { useAuthContext } from '../../Contexts/AuthContext';
 import { Alert, Box, Button, Stack, Tab, Tabs, TextField, Typography } from '@mui/material';
 
 const Login = () => {
     const { login, user } = useAuthContext();
     const navigate = useNavigate();
+    const location = useLocation();
+
+    const from = location.state?.from?.pathname || '/home';
 
     const [method, setMethod] = useState('email');
     const formik = useFormik({
@@ -23,16 +26,17 @@ const Login = () => {
                 .string()
                 .email('debe ingresar un correo válido')
                 .max(50)
-                .required('Email is required'),
+                .required('Se requiere un email'),
             password: Yup
                 .string()
-                .min(8, 'Must be at least 8 characters')
-                .required('Password is required'),
+                .min(8, 'Debe tener al menos 8 caracteres')
+                .required('Se requiere la contraseña'),
         }),
         onSubmit: (values, helpers) => {
             loginRequest(values)
                 .then((res) => {
                     login(res.accessToken, () => navigate('/home'))
+                    navigate(from, { replace: true });
                 })
                 .catch((err) => {
                     helpers.setStatus({ success: false });

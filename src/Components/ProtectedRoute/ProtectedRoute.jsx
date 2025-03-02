@@ -5,7 +5,11 @@ import { Container } from "@mui/material";
 
 
 const ProtectedRoute = () => {
-  const { user } = useAuthContext();
+  const { user, isAuthenticationFetched } = useAuthContext();
+
+  if (!isAuthenticationFetched) {
+    return <div>Cargando...</div>;
+  }
 
   if (!user) {
     return <Navigate to="/login" />

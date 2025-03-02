@@ -20,8 +20,10 @@ import { logout } from '../../stores/AccessTokenStore';
 
 // Array de páginas con etiqueta y ruta
 const pages = [
-  { label: 'Ver las fichas', route: '/home' },
-  { label: 'Registrar fichas', route: '/tra050form' }
+  { label: 'Proyectos', route: '/projects' },
+  { label: 'Subastas', route: '/auctions' }, //para admin
+  { label: 'Mis Subastas', route: '/auctions' },
+  { label: 'Sujetos Obligados', route: '/auctions' } //para admin
 ];
 const settings = [
   { name: 'Logout', action:logout}
