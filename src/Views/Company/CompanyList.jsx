@@ -19,9 +19,10 @@ const CompanyList = () => {
   useEffect(() => {
     getCompanies()
       .then(response => {
+        console.log(response)
         // Se asume que las compañías vienen en response.data
-        const rows = response.data.map(company => ({
-          id: company._id, // Se utiliza internamente para DataGrid
+        const rows = response.map(company => ({
+          id: company.id, 
           name: company.name,
           NifCif: company.NifCif,
         }));

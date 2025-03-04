@@ -13,6 +13,7 @@ import Home from './Views/Home/Home'
 import ProjectsList from './Views/Projects/ProjectsList'
 import ProjectCreateForm from './Views/Projects/ProjectsCreateForm'
 import CompanyList from './Views/Company/CompanyList'
+import CompanyCreateForm from './Views/Company/CompanyCreateForm'
 
 function App() {
 
@@ -30,6 +31,7 @@ function App() {
 
         {/* Company */}
         <Route path='/companies' element={<CompanyList />} />
+        <Route path='/companiesCreateForm' element={<CompanyCreateForm/>}/>
 
       </Route>
 
