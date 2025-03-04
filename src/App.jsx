@@ -15,6 +15,7 @@ import ProjectCreateForm from './Views/Projects/ProjectsCreateForm'
 import CompanyList from './Views/Company/CompanyList'
 import CompanyCreateForm from './Views/Company/CompanyCreateForm'
 import CompanyEditForm from './Views/Company/CompanYEditForm'
+import ProjectsEditForm from './Views/Projects/ProjectsEditForm'
 
 function App() {
 
@@ -29,6 +30,7 @@ function App() {
         {/* Projects */}
         <Route path='/projects' element={<ProjectsList />} />
         <Route path='/projectsCreateForm' element={<ProjectCreateForm />} />
+        <Route path='/projectsEditForm/:id' element={<ProjectsEditForm />} />
 
         {/* Company */}
         <Route path='/companies' element={<CompanyList />} />
