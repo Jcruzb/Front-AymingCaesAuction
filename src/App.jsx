@@ -18,6 +18,7 @@ import CompanyEditForm from './Views/Company/CompanYEditForm'
 import ProjectsEditForm from './Views/Projects/ProjectsEditForm'
 import AuctionCreateFromProject from './Views/Auction/AuctionCreateFromProject'
 import ProjecDetail from './Views/Projects/ProjectDetail'
+import ProjectListClient from './Views/Projects/ProjectListClient'
 
 function App() {
 
@@ -34,6 +35,7 @@ function App() {
         <Route path='/projectsCreateForm' element={<ProjectCreateForm />} />
         <Route path='/projectsEditForm/:id' element={<ProjectsEditForm />} />
         <Route path='/project/:id' element={<ProjecDetail/>} />
+        <Route path='/projects/auctions' element={<ProjectListClient/>} />
 
         {/* Company */}
         <Route path='/companies' element={<CompanyList />} />
