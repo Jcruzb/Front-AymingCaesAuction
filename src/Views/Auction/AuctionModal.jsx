@@ -23,13 +23,13 @@ const style = {
 
 const AuctionModal = ({ open, onClose, auction, project, id }) => {
 
-const navigate = useNavigate()
+  const navigate = useNavigate()
 
-const handleLaunchAuction = () => {
+  const handleLaunchAuction = () => {
     lauchAuction(id, project).
-    then(() => navigate('/home'))
-    .catch((err) => console.log(err))
-}
+      then(() => navigate('/home'))
+      .catch((err) => console.log(err))
+  }
 
   return (
     <Modal
@@ -55,7 +55,7 @@ const handleLaunchAuction = () => {
             </Typography>
           )}
           <Typography>
-            <strong>Ahorro Generado:</strong> {project.savingsGenerated}
+            <strong>Ahorro Generado:</strong> {project.savingsGenerated.toLocaleString('es-ES')} MWh
           </Typography>
           <Typography>
             <strong>Duración (días):</strong> {auction.durationDays}

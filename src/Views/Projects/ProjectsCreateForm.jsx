@@ -126,7 +126,7 @@ const ProjectCreateForm = () => {
             )}
             <TextField
               fullWidth
-              label="Ahorro generado"
+              label="Ahorro generado en MWh"
               name="savingsGenerated"
               type="number"
               value={formik.values.savingsGenerated}

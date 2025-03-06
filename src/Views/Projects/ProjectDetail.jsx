@@ -65,11 +65,11 @@ const ProjectDetail = () => {
             </Typography>
           )}
           <Typography variant="subtitle1">
-            <strong>Ahorro Generado:</strong> {project.savingsGenerated}
+            <strong>Ahorro Generado:</strong> {project.savingsGenerated.toLocaleString('es-ES')} MWh
           </Typography>
           {project.attachedDocuments && project.attachedDocuments.length > 0 && (
             <Typography variant="subtitle1">
-              <strong>Documentos Adjuntos:</strong> {project.attachedDocuments.join(', ')}
+              <strong>Documentos Adjuntos:</strong> {project.attachedDocuments.join(', ')?project.attachedDocuments.join(', '):'No se adjuntaron archivos para este pryecto'}
             </Typography>
           )}
         </Stack>
