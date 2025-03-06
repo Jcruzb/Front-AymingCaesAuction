@@ -19,6 +19,8 @@ import ProjectsEditForm from './Views/Projects/ProjectsEditForm'
 import AuctionCreateFromProject from './Views/Auction/AuctionCreateFromProject'
 import ProjecDetail from './Views/Projects/ProjectDetail'
 import ProjectListClient from './Views/Projects/ProjectListClient'
+import CreateUserForm from './Views/Users/CreateUserForm'
+import UserList from './Views/Users/UserList'
 
 function App() {
 
@@ -47,6 +49,11 @@ function App() {
 
         {/* Bids */}
         <Route path='/bid/:id' element={<AuctionCreateFromProject />} />
+
+        {/* Users */}
+        <Route path='/usersCreateForm' element={<CreateUserForm />} />
+        <Route path='/users' element={<UserList />} />
+
 
 
       </Route>

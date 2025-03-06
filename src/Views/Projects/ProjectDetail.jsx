@@ -43,6 +43,11 @@ const ProjectDetail = () => {
     }
   }, [project, user]);
 
+  const handleClose = () => {
+    setModalOpen(false)
+    window.location.reload();
+  }
+
   if (loading) {
     return <Typography>Cargando...</Typography>;
   }
@@ -104,7 +109,7 @@ const ProjectDetail = () => {
       {/* Modal de confirmación de puja */}
       <BidConfirmationModal 
         open={modalOpen}
-        onClose={() => setModalOpen(false)}
+        onClose={() => handleClose()}
         bidAmount={bidAmount}
         project={project}
         auctionId={project.auction[0]}

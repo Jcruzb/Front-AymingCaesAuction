@@ -23,7 +23,8 @@ const pages = [
   { label: 'Proyectos', route: '/projects' },
   { label: 'Subastas', route: '/auctions' }, //para admin
   { label: 'Mis Subastas', route: '/projects/auctions' },
-  { label: 'Sujetos Obligados', route: '/companies' } //para admin
+  { label: 'Sujetos Obligados', route: '/companies' }, //para admin
+  { label: 'Usuarios', route: '/users' } //para admin
 ];
 const settings = [
   { name: 'Logout', action:logout}
