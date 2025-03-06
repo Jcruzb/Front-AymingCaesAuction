@@ -45,6 +45,10 @@ function App() {
         {/* Auction */}
         <Route path='/projectsAuction/:id' element={<AuctionCreateFromProject />} />
 
+        {/* Bids */}
+        <Route path='/bid/:id' element={<AuctionCreateFromProject />} />
+
+
       </Route>
 
     </Routes>

@@ -23,6 +23,8 @@ const ProjectDetail = () => {
       });
   }, [id]);
 
+  console.log(project)
+
   if (loading) {
     return <Typography>Cargando...</Typography>;
   }
@@ -61,8 +63,8 @@ const ProjectDetail = () => {
             </Typography>
           )}
           {/* Agrega más campos según lo necesites */}
-          <Button variant="contained" onClick={() => navigate(-1)}>
-            Volver
+          <Button variant="contained" onClick={() => navigate(`/bid/${project.auction[0]}`)}>
+            Pujar
           </Button>
         </Stack>
       </Paper>
