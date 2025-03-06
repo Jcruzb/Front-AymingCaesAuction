@@ -90,7 +90,7 @@ const CompanyList = () => {
   }
 
   return (
-    <Container sx={{ marginTop: '1vh' }}>
+    <Container >
       <Button component={Link} to="/companiesCreateForm" variant="contained">
         Agregar Compañía
       </Button>
