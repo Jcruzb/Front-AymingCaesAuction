@@ -16,7 +16,6 @@ const ProjectsList = () => {
   const fetchProjects = () => {
     getProjects()
       .then(response => {
-        console.log(response)
         // Se asume que la respuesta contiene response.data con un arreglo de proyectos.
         const rows = response.map(project => ({
           id: project._id,
