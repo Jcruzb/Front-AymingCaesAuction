@@ -23,7 +23,6 @@ const BidConfirmationModal = ({ open, onClose, bidAmount, auctionId }) => {
   const [auctionDetails, setAuctionDetails] = useState(null);
   const { user } = useAuthContext(); 
 
-  console.log(user)
 
   useEffect(() => {
     if (auctionId) {
