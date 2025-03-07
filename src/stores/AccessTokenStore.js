@@ -13,6 +13,7 @@ export const logout = () => {
   localStorage.removeItem(ACCESS_TOKEN_KEY);
   accessToken = '';
 
-  window.location.assign('/');
+  window.location.assign('/login');
+  window.location.reload();
   console.log('logout');
 };

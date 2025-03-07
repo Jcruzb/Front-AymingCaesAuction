@@ -22,7 +22,7 @@ const ProjectsList = () => {
           title: project.title,
           auctionStatus:
             project.auction && project.auction.length > 0
-              ? project.auction[0].closed
+              ? !project.auction[0].closed
                 ? 'Cerrada'
                 : 'Abierta'
               : 'Sin subasta',

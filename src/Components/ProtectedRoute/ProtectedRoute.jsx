@@ -5,6 +5,8 @@ import { Container } from "@mui/material";
 
 
 const ProtectedRoute = () => {
+
+  console.log('entraaaa al protectedRoutes')
   const { user, isAuthenticationFetched } = useAuthContext();
 
   if (!isAuthenticationFetched) {

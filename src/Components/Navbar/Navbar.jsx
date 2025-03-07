@@ -19,13 +19,20 @@ import { logout } from '../../stores/AccessTokenStore';
 
 
 // Array de páginas con etiqueta y ruta
-const pages = [
+
+
+const adminPages = [
   { label: 'Proyectos', route: '/projects' },
-  { label: 'Subastas', route: '/auctions' }, //para admin
-  { label: 'Mis Subastas', route: '/projects/auctions' },
-  { label: 'Sujetos Obligados', route: '/companies' }, //para admin
-  { label: 'Usuarios', route: '/users' } //para admin
+  { label: 'Subastas', route: '/auctions' },
+  { label: 'Usuarios', route: '/users' },
+  { label: 'Compañías', route: '/companies' },
 ];
+
+const userPages = [
+  { label: 'Mis Subastas', route: '/projects/auctions' },
+  { label: 'Home', route: '/home' },
+];
+
 const settings = [
   { name: 'Logout', action:logout}
 ];
@@ -34,7 +41,7 @@ function Navbar() {
   const navigate = useNavigate();
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
-  const { logout } = useAuthContext();
+  const { logout, user } = useAuthContext();
 
 
   const handleOpenNavMenu = (event) => {
@@ -56,6 +63,8 @@ function Navbar() {
     navigate(route);
     handleCloseNavMenu();
   };
+
+  const pages = user && user.role === 'administrador' ? adminPages : userPages;
 
   return (
     <AppBar position="static" sx={{ marginBottom: '1vh' }}>
