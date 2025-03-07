@@ -26,6 +26,7 @@ const ProjectsList = () => {
                 ? 'Cerrada'
                 : 'Abierta'
               : 'Sin subasta',
+              auction:project.auction[0]
         }));
         setProjects(rows);
         setLoading(false);
@@ -57,10 +58,10 @@ const ProjectsList = () => {
     }
   };
 
-  const handleAuction = (id, hasAuction) => {
+  const handleAuction = (id, auctionId, hasAuction) => {
     if (hasAuction) {
       // Si el proyecto ya tiene subastas, redirige a la vista de subastas
-      navigate(`/projects/${id}/auctions`);
+      navigate(`/auction/detail/${auctionId}`);
     } else {
       // Si no tiene subastas, redirige a la vista para crear una subasta
       navigate(`/projectsAuction/${id}`);
@@ -110,9 +111,9 @@ const ProjectsList = () => {
           <Button
             variant="contained"
             color={hasAuction ? 'secondary' : 'primary'} // Si tiene subasta, botón secundario
-            onClick={() => handleAuction(params.row.id, hasAuction)}
+            onClick={() => handleAuction(params.row.id,params.row.auction, hasAuction)}
           >
-            {hasAuction ? 'Ver Subastas' : 'Subastar'}
+            {hasAuction ? 'Ver Subasta' : 'Subastar'}
           </Button>
         );
       },
