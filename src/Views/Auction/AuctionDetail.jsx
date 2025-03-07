@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, Paper, Button, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getAuctionDetail } from '../../Services/AuctionService';
+import { getAuctionDetail, norifyAuction } from '../../Services/AuctionService';
 import { useAuthContext } from '../../Contexts/AuthContext';
 
 const AuctionDetail = () => {
@@ -25,6 +25,12 @@ const AuctionDetail = () => {
                 setLoading(false);
             });
     }, [id]);
+
+    const notify = () => {
+        norifyAuction(id)
+            .then(() => { navigate('/projects')})
+            .catch(() => { console.log('Error')})
+    }
 
     console.log(auction)
 
@@ -102,6 +108,13 @@ const AuctionDetail = () => {
                 <Button variant="contained" onClick={() => navigate(-1)}>
                     Volver
                 </Button>
+                {auction.closed && !auction.resultsNotified ?
+                    <Button variant="contained" color="warning" onClick={() => notify()}>
+                        Notificar la subasta
+                    </Button>
+                    :
+                    null
+                }
             </Stack>
         </Paper>
     );
