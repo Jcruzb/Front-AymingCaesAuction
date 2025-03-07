@@ -1,10 +1,21 @@
+import { useAuthContext } from '../../Contexts/AuthContext';
+import AdminDashboard from './AdminDashboard';
+import UserDashboard from './UserDashboard';
 
+const Home = () => {
+    const { user } = useAuthContext();
 
-const Home = () =>{
-
-    return(
+    return (
         <>
-            Hola Mundo
+            {
+                user.role === 'administrador'
+                    ?
+                    <AdminDashboard />
+                    :
+                    <UserDashboard />
+
+            }
+
         </>
     )
 }

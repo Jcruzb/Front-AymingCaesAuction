@@ -22,7 +22,6 @@ import AuctionsList from './Views/Auction/AuctionsList';
 import AuctionDetail from './Views/Auction/AuctionDetail';
 
 function App() {
-  console.log('entra a APP');
   return (
     <Routes>
       {/* Rutas públicas */}
