@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { Container, Paper, Button } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import TimeRemainingCell from '../../Components/TimeRemaingCell/TimeRemainingCell';
 import { getAuctions, closeAuction } from '../../Services/AuctionService';
 
@@ -9,6 +10,7 @@ const AuctionsList = () => {
   const [auctions, setAuctions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [columnVisibility, setColumnVisibility] = useState({ id: false });
+  const navigate = useNavigate();
 
   const fetchAuctions = () => {
     getAuctions()
@@ -64,12 +66,16 @@ const AuctionsList = () => {
       field: 'timeRemaining',
       headerName: 'Tiempo Restante',
       width: 200,
-      renderCell: (params) => (
-        <TimeRemainingCell 
-          createdAt={params.row.createdAt} 
-          durationDays={params.row.durationDays} 
-        />
-      ),
+      renderCell: (params) => {
+        if (params.row.closed) {
+          return <span>0h 0m 0s</span>;
+        } else {
+          return <TimeRemainingCell 
+                   createdAt={params.row.createdAt} 
+                   durationDays={params.row.durationDays} 
+                 />;
+        }
+      },
     },
     {
       field: 'acciones',
@@ -78,11 +84,21 @@ const AuctionsList = () => {
       sortable: false,
       filterable: false,
       disableColumnMenu: true,
-      renderCell: (params) => (
-        <Button variant="contained" color="error" onClick={() => handleCloseAuction(params.row.id)}>
-          Cerrar Subasta
-        </Button>
-      ),
+      renderCell: (params) => {
+        if (params.row.closed) {
+          return (
+            <Button variant="contained" color="primary" onClick={() => navigate(`/auction/${params.row.id}`)}>
+              Ver detalle
+            </Button>
+          );
+        } else {
+          return (
+            <Button variant="contained" color="error" onClick={() => handleCloseAuction(params.row.id)}>
+              Cerrar Subasta
+            </Button>
+          );
+        }
+      },
     },
   ];
 
