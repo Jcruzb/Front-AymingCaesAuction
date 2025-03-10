@@ -19,7 +19,7 @@ const ProtectedRoute = () => {
   return (
     <>
       <Navbar />
-      <Container>
+      <Container sx={{marginTop:'14vh'}}>
         <Outlet />
       </Container>
     </>

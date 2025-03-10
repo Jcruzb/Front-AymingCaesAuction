@@ -7,10 +7,12 @@ import { getProjects, deleteProject } from '../../Services/ProjectService';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
+
 const ProjectsList = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [columnVisibility, setColumnVisibility] = useState({ id: false });
+
   const navigate = useNavigate();
 
   const fetchProjects = () => {
@@ -38,8 +40,10 @@ const ProjectsList = () => {
   };
 
   useEffect(() => {
-    fetchProjects();
+    fetchProjects()
   }, []);
+
+
 
   const handleEdit = (id) => {
     // Redirige al formulario de edición del proyecto

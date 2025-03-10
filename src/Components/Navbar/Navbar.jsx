@@ -68,8 +68,8 @@ function Navbar() {
   const pages = user && user.role === 'administrador' ? adminPages : userPages;
 
   return (
-    <AppBar position="fixed"   sx={{ marginBottom: '1vh', backgroundColor:'black' }}>
-      <Container maxWidth="xl">
+    <AppBar position="fixed"   sx={{ backgroundColor:'black' }}>
+      <Container maxWidth="xl" >
         <Toolbar disableGutters>
 
           <Typography

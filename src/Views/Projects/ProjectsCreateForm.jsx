@@ -1,18 +1,30 @@
+// src/Views/Projects/ProjectCreateForm.jsx
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useNavigate } from 'react-router-dom';
-import { Box, Button, Stack, TextField, Typography, MenuItem } from '@mui/material';
+import { Box, Button, Stack, TextField, Typography, MenuItem, Autocomplete } from '@mui/material';
 import { createProject } from '../../Services/ProjectService'; // Asegúrate de tener implementada esta función
+import { useEffect, useState } from 'react';
+import { getStandarProjects } from '../../Services/StandaProject';
 
 const ProjectCreateForm = () => {
+  const [standarProjects, setStandarProjects] = useState([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    getStandarProjects()
+      .then((response) => {
+        setStandarProjects(response); // Se espera que response sea un array de proyectos estándar con propiedades: id, code, name, etc.
+      })
+      .catch((err) => console.log(err));
+  }, []);
 
   const formik = useFormik({
     initialValues: {
       title: '',
       savingsOwner: '',
       projectType: 'Singular',
-      standardizedProject: '',
+      standardizedProject: '', // Aquí se guardará el id del proyecto estándar seleccionado
       savingsGenerated: '',
       attachedDocuments: '', // Puedes ingresar URLs o nombres separados por coma
       submit: null,
@@ -25,7 +37,7 @@ const ProjectCreateForm = () => {
         .required('El tipo de proyecto es obligatorio'),
       standardizedProject: Yup.string().when('projectType', (projectType, schema) => {
         return projectType === 'Estandarizado'
-          ? schema.required('Se requiere el proyecto estandarizado')
+          ? schema.required('Se requiere seleccionar un proyecto estandarizado')
           : schema;
       }),
       savingsGenerated: Yup.number()
@@ -34,14 +46,12 @@ const ProjectCreateForm = () => {
       attachedDocuments: Yup.string(), // Opcional
     }),
     onSubmit: (values, helpers) => {
-      // Si deseas enviar attachedDocuments como array, puedes separarlos por coma:
+      // Si el proyecto no es estandarizado, eliminamos el campo standardizedProject
       const projectData = { ...values };
       if (projectData.projectType !== 'Estandarizado') {
         delete projectData.standardizedProject;
       }
-
-      console.log(projectData)
-
+      console.log(projectData);
       createProject(projectData)
         .then(() => {
           navigate('/projects'); // Redirige a la lista o detalle de proyectos
@@ -113,15 +123,21 @@ const ProjectCreateForm = () => {
               <MenuItem value="Estandarizado">Estandarizado</MenuItem>
             </TextField>
             {formik.values.projectType === 'Estandarizado' && (
-              <TextField
-                fullWidth
-                label="Proyecto estandarizado"
-                name="standardizedProject"
-                value={formik.values.standardizedProject}
-                onBlur={formik.handleBlur}
-                onChange={formik.handleChange}
-                error={Boolean(formik.touched.standardizedProject && formik.errors.standardizedProject)}
-                helperText={formik.touched.standardizedProject && formik.errors.standardizedProject}
+              <Autocomplete
+                options={standarProjects}
+                getOptionLabel={(option) => `${option.code} ${option.name}`}
+                onChange={(event, value) => {
+                  // Guarda el id del proyecto estándar seleccionado
+                  formik.setFieldValue("standardizedProject", value ? value._id : "");
+                }}
+                renderInput={(params) => (
+                  <TextField 
+                    {...params}
+                    label="Proyecto estandarizado"
+                    error={formik.touched.standardizedProject && Boolean(formik.errors.standardizedProject)}
+                    helperText={formik.touched.standardizedProject && formik.errors.standardizedProject}
+                  />
+                )}
               />
             )}
             <TextField
@@ -151,13 +167,7 @@ const ProjectCreateForm = () => {
               {formik.errors.submit}
             </Typography>
           )}
-          <Button
-            fullWidth
-            size="large"
-            sx={{ mt: 3 }}
-            type="submit"
-            variant="contained"
-          >
+          <Button fullWidth size="large" sx={{ mt: 3 }} type="submit" variant="contained">
             Crear Proyecto
           </Button>
         </form>

@@ -4,11 +4,13 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Box, Button, Stack, TextField, Typography, MenuItem } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { editProject, getProject } from '../../Services/ProjectService';
+import { getStandarProjects } from '../../Services/StandaProject';
 
 const ProjectsEditForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [initialValues, setInitialValues] = useState(null);
+  const [standarProjects, setStandarProjects] = useState([])
 
   useEffect(() => {
     getProject(id)
@@ -23,6 +25,13 @@ const ProjectsEditForm = () => {
           attachedDocuments: response.attachedDocuments?.join(', ') || '',
           submit: null,
         });
+      })
+      .then(() =>{
+        getStandarProjects()
+    .then((response)=>{
+      console.log(response)
+      setStandarProjects(response)
+    })
       })
       .catch((error) => {
         console.error('Error al obtener los datos del proyecto:', error);
