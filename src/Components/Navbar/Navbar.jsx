@@ -13,7 +13,6 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
-import AdbIcon from '@mui/icons-material/Adb';
 import { useAuthContext } from '../../Contexts/AuthContext';
 import { logout } from '../../stores/AccessTokenStore';
 import Logo from '../../assets/ayming.svg';
@@ -69,7 +68,7 @@ function Navbar() {
   const pages = user && user.role === 'administrador' ? adminPages : userPages;
 
   return (
-    <AppBar position="static" sx={{ marginBottom: '1vh', backgroundColor:'black' }}>
+    <AppBar position="fixed"   sx={{ marginBottom: '1vh', backgroundColor:'black' }}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
 
