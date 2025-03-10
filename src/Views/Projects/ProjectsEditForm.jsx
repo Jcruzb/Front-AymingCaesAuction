@@ -1,7 +1,8 @@
+// src/Views/Projects/ProjectsEditForm.jsx
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Box, Button, Stack, TextField, Typography, MenuItem } from '@mui/material';
+import { Box, Button, Stack, TextField, Typography, MenuItem, Autocomplete } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { editProject, getProject } from '../../Services/ProjectService';
 import { getStandarProjects } from '../../Services/StandaProject';
@@ -10,12 +11,12 @@ const ProjectsEditForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [initialValues, setInitialValues] = useState(null);
-  const [standarProjects, setStandarProjects] = useState([])
+  const [standarProjects, setStandarProjects] = useState([]);
 
   useEffect(() => {
     getProject(id)
       .then((response) => {
-        // Se asume que el proyecto viene en response.data
+        // Se asume que el proyecto viene en response.data (o response)
         setInitialValues({
           title: response.title,
           projectType: response.projectType,
@@ -26,12 +27,12 @@ const ProjectsEditForm = () => {
           submit: null,
         });
       })
-      .then(() =>{
+      .then(() => {
         getStandarProjects()
-    .then((response)=>{
-      console.log(response)
-      setStandarProjects(response)
-    })
+          .then((response) => {
+            setStandarProjects(response);
+          })
+          .catch((err) => console.log(err));
       })
       .catch((error) => {
         console.error('Error al obtener los datos del proyecto:', error);
@@ -50,21 +51,21 @@ const ProjectsEditForm = () => {
       submit: null,
     },
     validationSchema: Yup.object({
-        title: Yup.string().required('El título del proyecto es obligatorio'),
-        projectType: Yup.string()
-          .oneOf(['Singular', 'Estandarizado'], 'Tipo de proyecto inválido')
-          .required('El tipo de proyecto es obligatorio'),
-        savingsOwner: Yup.string().required('Debe ingresar el propietario del ahorro'),
-        standardizedProject: Yup.string().when('projectType', (projectType, schema) => {
-          return projectType === 'Estandarizado'
-            ? schema.required('Debe seleccionar un proyecto estandarizado')
-            : schema.notRequired();
-        }),
-        savingsGenerated: Yup.number()
-          .typeError('Debe ser un número')
-          .required('Se requiere el ahorro generado'),
-        attachedDocuments: Yup.string(),
+      title: Yup.string().required('El título del proyecto es obligatorio'),
+      projectType: Yup.string()
+        .oneOf(['Singular', 'Estandarizado'], 'Tipo de proyecto inválido')
+        .required('El tipo de proyecto es obligatorio'),
+      savingsOwner: Yup.string().required('Debe ingresar el propietario del ahorro'),
+      standardizedProject: Yup.string().when('projectType', (projectType, schema) => {
+        return projectType === 'Estandarizado'
+          ? schema.required('Debe seleccionar un proyecto estandarizado')
+          : schema.notRequired();
       }),
+      savingsGenerated: Yup.number()
+        .typeError('Debe ser un número')
+        .required('Se requiere el ahorro generado'),
+      attachedDocuments: Yup.string(),
+    }),
     onSubmit: (values, helpers) => {
       const projectData = {
         ...values,
@@ -140,16 +141,23 @@ const ProjectsEditForm = () => {
               <MenuItem value="Estandarizado">Estandarizado</MenuItem>
             </TextField>
             {formik.values.projectType === 'Estandarizado' && (
-              <TextField
-                fullWidth
-                label="Proyecto Estandarizado"
-                name="standardizedProject"
-                value={formik.values.standardizedProject}
-                onBlur={formik.handleBlur}
-                onChange={formik.handleChange}
-                error={Boolean(formik.touched.standardizedProject && formik.errors.standardizedProject)}
-                helperText={formik.touched.standardizedProject && formik.errors.standardizedProject}
-              />
+              <Autocomplete
+              options={standarProjects}
+              getOptionLabel={(option) => `${option.code} ${option.name}`}
+              value={standarProjects.find(item => item._id === formik.values.standardizedProject) || null}
+              onChange={(event, value) => {
+                formik.setFieldValue("standardizedProject", value ? value._id : "");
+              }}
+              renderInput={(params) => (
+                <TextField 
+                  {...params}
+                  label="Proyecto estandarizado"
+                  error={formik.touched.standardizedProject && Boolean(formik.errors.standardizedProject)}
+                  helperText={formik.touched.standardizedProject && formik.errors.standardizedProject}
+                />
+              )}
+            />
+            
             )}
             <TextField
               fullWidth
