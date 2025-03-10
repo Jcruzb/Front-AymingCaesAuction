@@ -1,32 +1,48 @@
 // src/Views/Projects/ProjectCreateForm.jsx
+import React, { useEffect, useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { useNavigate } from 'react-router-dom';
 import { Box, Button, Stack, TextField, Typography, MenuItem, Autocomplete } from '@mui/material';
-import { createProject } from '../../Services/ProjectService'; // Asegúrate de tener implementada esta función
-import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { createProject } from '../../Services/ProjectService'; // Debe aceptar FormData en lugar de JSON
 import { getStandarProjects } from '../../Services/StandaProject';
+import SaveIcon from '@mui/icons-material/Save';
 
 const ProjectCreateForm = () => {
   const [standarProjects, setStandarProjects] = useState([]);
+  const [fileLoading, setFileLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     getStandarProjects()
       .then((response) => {
-        setStandarProjects(response); // Se espera que response sea un array de proyectos estándar con propiedades: id, code, name, etc.
+        setStandarProjects(response); // Se espera que contenga { _id, code, name, ... }
       })
       .catch((err) => console.log(err));
   }, []);
+
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setFileLoading(true);
+      // Simulación de la carga del archivo. Aquí se puede integrar la lógica real.
+      setTimeout(() => {
+        formik.setFieldValue('file', file);
+        formik.setFieldValue('attachedDocuments', file.name);
+        setFileLoading(false);
+      }, 2000);
+    }
+  };
 
   const formik = useFormik({
     initialValues: {
       title: '',
       savingsOwner: '',
       projectType: 'Singular',
-      standardizedProject: '', // Aquí se guardará el id del proyecto estándar seleccionado
+      standardizedProject: '',
       savingsGenerated: '',
-      attachedDocuments: '', // Puedes ingresar URLs o nombres separados por coma
+      attachedDocuments: '',
+      file: null, // Para el archivo
       submit: null,
     },
     validationSchema: Yup.object({
@@ -35,30 +51,41 @@ const ProjectCreateForm = () => {
       projectType: Yup.string()
         .oneOf(['Singular', 'Estandarizado'], 'Tipo de proyecto inválido')
         .required('El tipo de proyecto es obligatorio'),
-      standardizedProject: Yup.string().when('projectType', (projectType, schema) => {
-        return projectType === 'Estandarizado'
-          ? schema.required('Se requiere seleccionar un proyecto estandarizado')
-          : schema;
-      }),
+      standardizedProject: Yup.string().when('projectType', (projectType, schema) =>
+        projectType === 'Estandarizado'
+          ? schema.required('Debe seleccionar un proyecto estandarizado')
+          : schema
+      ),
       savingsGenerated: Yup.number()
         .typeError('Debe ser un número')
         .required('Se requiere el ahorro generado'),
       attachedDocuments: Yup.string(), // Opcional
+      // "file" se valida manualmente en caso de requerirse
     }),
     onSubmit: (values, helpers) => {
-      // Si el proyecto no es estandarizado, eliminamos el campo standardizedProject
-      const projectData = { ...values };
-      if (projectData.projectType !== 'Estandarizado') {
-        delete projectData.standardizedProject;
+      const formData = new FormData();
+
+      formData.append('title', values.title);
+      formData.append('savingsOwner', values.savingsOwner);
+      formData.append('projectType', values.projectType);
+      if (values.projectType === 'Estandarizado') {
+        formData.append('standardizedProject', values.standardizedProject);
       }
-      console.log(projectData);
-      createProject(projectData)
+      formData.append('savingsGenerated', values.savingsGenerated);
+      formData.append('attachedDocuments', values.attachedDocuments || '');
+      if (values.file) {
+        formData.append('file', values.file);
+      }
+
+      createProject(formData)
         .then(() => {
-          navigate('/projects'); // Redirige a la lista o detalle de proyectos
+          navigate('/projects');
         })
         .catch((err) => {
           helpers.setStatus({ success: false });
-          helpers.setErrors({ submit: err.response?.data?.message || 'Error creando el proyecto' });
+          helpers.setErrors({
+            submit: err.response?.data?.message || 'Error creando el proyecto',
+          });
           helpers.setSubmitting(false);
         });
     },
@@ -75,14 +102,7 @@ const ProjectCreateForm = () => {
         p: 3,
       }}
     >
-      <Box
-        sx={{
-          maxWidth: 550,
-          width: '100%',
-          px: 3,
-          py: '100px',
-        }}
-      >
+      <Box sx={{ maxWidth: 550, width: '100%', px: 3, py: '100px' }}>
         <Stack spacing={1} sx={{ mb: 3 }}>
           <Typography variant="h4">Crear Proyecto</Typography>
         </Stack>
@@ -92,7 +112,7 @@ const ProjectCreateForm = () => {
               fullWidth
               label="Título del proyecto"
               name="title"
-              value={formik.values.title}
+              value={formik.values.title || ''}
               onBlur={formik.handleBlur}
               onChange={formik.handleChange}
               error={Boolean(formik.touched.title && formik.errors.title)}
@@ -102,7 +122,7 @@ const ProjectCreateForm = () => {
               fullWidth
               label="Ahorrador inicial"
               name="savingsOwner"
-              value={formik.values.savingsOwner}
+              value={formik.values.savingsOwner || ''}
               onBlur={formik.handleBlur}
               onChange={formik.handleChange}
               error={Boolean(formik.touched.savingsOwner && formik.errors.savingsOwner)}
@@ -113,7 +133,7 @@ const ProjectCreateForm = () => {
               fullWidth
               label="Tipo de proyecto"
               name="projectType"
-              value={formik.values.projectType}
+              value={formik.values.projectType || 'Singular'}
               onBlur={formik.handleBlur}
               onChange={formik.handleChange}
               error={Boolean(formik.touched.projectType && formik.errors.projectType)}
@@ -122,45 +142,76 @@ const ProjectCreateForm = () => {
               <MenuItem value="Singular">Singular</MenuItem>
               <MenuItem value="Estandarizado">Estandarizado</MenuItem>
             </TextField>
+
             {formik.values.projectType === 'Estandarizado' && (
               <Autocomplete
                 options={standarProjects}
                 getOptionLabel={(option) => `${option.code} ${option.name}`}
                 onChange={(event, value) => {
-                  // Guarda el id del proyecto estándar seleccionado
                   formik.setFieldValue("standardizedProject", value ? value._id : "");
                 }}
                 renderInput={(params) => (
                   <TextField 
                     {...params}
                     label="Proyecto estandarizado"
-                    error={formik.touched.standardizedProject && Boolean(formik.errors.standardizedProject)}
-                    helperText={formik.touched.standardizedProject && formik.errors.standardizedProject}
+                    error={
+                      formik.touched.standardizedProject &&
+                      Boolean(formik.errors.standardizedProject)
+                    }
+                    helperText={
+                      formik.touched.standardizedProject && formik.errors.standardizedProject
+                    }
                   />
                 )}
               />
             )}
+
             <TextField
               fullWidth
               label="Ahorro generado en MWh"
               name="savingsGenerated"
               type="number"
-              value={formik.values.savingsGenerated}
+              value={formik.values.savingsGenerated || ''}
               onBlur={formik.handleBlur}
               onChange={formik.handleChange}
               error={Boolean(formik.touched.savingsGenerated && formik.errors.savingsGenerated)}
               helperText={formik.touched.savingsGenerated && formik.errors.savingsGenerated}
             />
-            <TextField
-              fullWidth
-              label="Documentos adjuntos (separados por coma)"
-              name="attachedDocuments"
-              value={formik.values.attachedDocuments}
-              onBlur={formik.handleBlur}
-              onChange={formik.handleChange}
-              error={Boolean(formik.touched.attachedDocuments && formik.errors.attachedDocuments)}
-              helperText={formik.touched.attachedDocuments && formik.errors.attachedDocuments}
-            />
+            <Stack spacing={1}>
+              <Typography variant="subtitle1">Documentos Adjuntos</Typography>
+              <Typography variant="caption" color="text.secondary">
+                Puede cargar un archivo o adjuntar una URL
+              </Typography>
+              <TextField
+                fullWidth
+                label="URL del documento (opcional)"
+                name="attachedDocuments"
+                value={formik.values.attachedDocuments || ''}
+                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
+                error={Boolean(formik.touched.attachedDocuments && formik.errors.attachedDocuments)}
+                helperText={formik.touched.attachedDocuments && formik.errors.attachedDocuments}
+              />
+              <input
+                id="file-upload"
+                type="file"
+                style={{ display: 'none' }}
+                onChange={handleFileUpload}
+              />
+              <Button
+                fullWidth
+                variant="outlined"
+                startIcon={<SaveIcon />}
+                onClick={() => document.getElementById('file-upload').click()}
+              >
+                {fileLoading ? "Loading…" : "Cargar archivo"}
+              </Button>
+              {formik.values.file && (
+                <Typography variant="body2">
+                  Archivo seleccionado: {formik.values.file.name}
+                </Typography>
+              )}
+            </Stack>
           </Stack>
           {formik.errors.submit && (
             <Typography color="error" sx={{ mt: 3 }} variant="body2">

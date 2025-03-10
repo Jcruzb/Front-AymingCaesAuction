@@ -6,24 +6,29 @@ import { Box, Button, Stack, TextField, Typography, MenuItem, Autocomplete } fro
 import { useEffect, useState } from 'react';
 import { editProject, getProject } from '../../Services/ProjectService';
 import { getStandarProjects } from '../../Services/StandaProject';
+import SaveIcon from '@mui/icons-material/Save';
 
 const ProjectsEditForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [initialValues, setInitialValues] = useState(null);
   const [standarProjects, setStandarProjects] = useState([]);
+  const [fileLoading, setFileLoading] = useState(false);
 
   useEffect(() => {
     getProject(id)
       .then((response) => {
-        // Se asume que el proyecto viene en response.data (o response)
+        // Se verifica que attachedDocuments tenga elementos; de lo contrario se asigna una cadena vacía
         setInitialValues({
-          title: response.title,
-          projectType: response.projectType,
-          savingsOwner: response.savingsOwner,
+          title: response.title || '',
+          projectType: response.projectType || 'Singular',
+          savingsOwner: response.savingsOwner || '',
           standardizedProject: response.standardizedProject || '',
-          savingsGenerated: response.savingsGenerated,
-          attachedDocuments: response.attachedDocuments?.join(', ') || '',
+          attachedDocuments:
+            response.attachedDocuments && response.attachedDocuments.length > 0
+              ? response.attachedDocuments[0]
+              : '',
+          savingsGenerated: response.savingsGenerated || '',
           submit: null,
         });
       })
@@ -38,6 +43,19 @@ const ProjectsEditForm = () => {
         console.error('Error al obtener los datos del proyecto:', error);
       });
   }, [id]);
+
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setFileLoading(true);
+      // Simulación de subida del archivo; reemplaza esta lógica por la real según tu integración
+      setTimeout(() => {
+        const uploadedFileUrl = file.name; // Ejemplo: se utiliza el nombre del archivo
+        formik.setFieldValue("attachedDocuments", uploadedFileUrl);
+        setFileLoading(false);
+      }, 2000);
+    }
+  };
 
   const formik = useFormik({
     enableReinitialize: true,
@@ -69,9 +87,8 @@ const ProjectsEditForm = () => {
     onSubmit: (values, helpers) => {
       const projectData = {
         ...values,
-        attachedDocuments: values.attachedDocuments
-          ? values.attachedDocuments.split(',').map((doc) => doc.trim())
-          : [],
+        // Se convierte a arreglo el valor de attachedDocuments si se definió
+        attachedDocuments: values.attachedDocuments ? [values.attachedDocuments] : [],
         savingsGenerated: Number(values.savingsGenerated),
       };
 
@@ -120,7 +137,7 @@ const ProjectsEditForm = () => {
               fullWidth
               label="Título del Proyecto"
               name="title"
-              value={formik.values.title}
+              value={formik.values.title || ''}
               onBlur={formik.handleBlur}
               onChange={formik.handleChange}
               error={Boolean(formik.touched.title && formik.errors.title)}
@@ -131,7 +148,7 @@ const ProjectsEditForm = () => {
               fullWidth
               label="Tipo de Proyecto"
               name="projectType"
-              value={formik.values.projectType}
+              value={formik.values.projectType || 'Singular'}
               onBlur={formik.handleBlur}
               onChange={formik.handleChange}
               error={Boolean(formik.touched.projectType && formik.errors.projectType)}
@@ -142,28 +159,36 @@ const ProjectsEditForm = () => {
             </TextField>
             {formik.values.projectType === 'Estandarizado' && (
               <Autocomplete
-              options={standarProjects}
-              getOptionLabel={(option) => `${option.code} ${option.name}`}
-              value={standarProjects.find(item => item._id === formik.values.standardizedProject) || null}
-              onChange={(event, value) => {
-                formik.setFieldValue("standardizedProject", value ? value._id : "");
-              }}
-              renderInput={(params) => (
-                <TextField 
-                  {...params}
-                  label="Proyecto estandarizado"
-                  error={formik.touched.standardizedProject && Boolean(formik.errors.standardizedProject)}
-                  helperText={formik.touched.standardizedProject && formik.errors.standardizedProject}
-                />
-              )}
-            />
-            
+                options={standarProjects}
+                getOptionLabel={(option) => `${option.code} ${option.name}`}
+                value={
+                  standarProjects.find(
+                    (item) => item._id === formik.values.standardizedProject
+                  ) || null
+                }
+                onChange={(event, value) => {
+                  formik.setFieldValue("standardizedProject", value ? value._id : "");
+                }}
+                renderInput={(params) => (
+                  <TextField 
+                    {...params}
+                    label="Proyecto estandarizado"
+                    error={
+                      formik.touched.standardizedProject &&
+                      Boolean(formik.errors.standardizedProject)
+                    }
+                    helperText={
+                      formik.touched.standardizedProject && formik.errors.standardizedProject
+                    }
+                  />
+                )}
+              />
             )}
             <TextField
               fullWidth
               label="Propietario del Ahorro"
               name="savingsOwner"
-              value={formik.values.savingsOwner}
+              value={formik.values.savingsOwner || ''}
               onBlur={formik.handleBlur}
               onChange={formik.handleChange}
               error={Boolean(formik.touched.savingsOwner && formik.errors.savingsOwner)}
@@ -174,22 +199,42 @@ const ProjectsEditForm = () => {
               label="Ahorro Generado"
               name="savingsGenerated"
               type="number"
-              value={formik.values.savingsGenerated}
+              value={formik.values.savingsGenerated || ''}
               onBlur={formik.handleBlur}
               onChange={formik.handleChange}
               error={Boolean(formik.touched.savingsGenerated && formik.errors.savingsGenerated)}
               helperText={formik.touched.savingsGenerated && formik.errors.savingsGenerated}
             />
-            <TextField
-              fullWidth
-              label="Documentos Adjuntos (separados por coma)"
-              name="attachedDocuments"
-              value={formik.values.attachedDocuments}
-              onBlur={formik.handleBlur}
-              onChange={formik.handleChange}
-              error={Boolean(formik.touched.attachedDocuments && formik.errors.attachedDocuments)}
-              helperText={formik.touched.attachedDocuments && formik.errors.attachedDocuments}
-            />
+            <Stack spacing={1}>
+              <Typography variant="subtitle1">Documentos Adjuntos</Typography>
+              <Typography variant="caption" color="text.secondary">
+                Puede cargar un archivo o adjuntar una URL
+              </Typography>
+              <TextField
+                fullWidth
+                label="URL del documento (opcional)"
+                name="attachedDocuments"
+                value={formik.values.attachedDocuments || ''}
+                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
+                error={Boolean(formik.touched.attachedDocuments && formik.errors.attachedDocuments)}
+                helperText={formik.touched.attachedDocuments && formik.errors.attachedDocuments}
+              />
+              <input
+                id="file-upload"
+                type="file"
+                style={{ display: 'none' }}
+                onChange={handleFileUpload}
+              />
+              <Button
+                fullWidth
+                variant="outlined"
+                startIcon={<SaveIcon />}
+                onClick={() => document.getElementById('file-upload').click()}
+              >
+                {fileLoading ? "Loading…" : "Cargar archivo"}
+              </Button>
+            </Stack>
           </Stack>
           {formik.errors.submit && (
             <Typography color="error" sx={{ mt: 3 }} variant="body2">
