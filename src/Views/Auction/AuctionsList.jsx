@@ -15,10 +15,11 @@ const AuctionsList = () => {
   const fetchAuctions = () => {
     getAuctions()
       .then(response => {
-        // Se asume que cada subasta tiene: _id, createdAt, durationDays y project (populado con title y savingsGenerated)
+          console.log(response)
         const rows = response.map(auction => ({
           id: auction._id,
           projectTitle: auction.project ? auction.project.title : 'N/A',
+          projectId: auction.project ? auction.project._id : 'N/A',
           savings: auction.project ? auction.project.savingsGenerated : 'N/A',
           createdAt: auction.createdAt,
           durationDays: auction.durationDays,
@@ -48,6 +49,8 @@ const AuctionsList = () => {
         });
     }
   };
+
+
 
   if (loading) {
     return <div>Cargando subastas...</div>;
@@ -85,9 +88,10 @@ const AuctionsList = () => {
       filterable: false,
       disableColumnMenu: true,
       renderCell: (params) => {
+        console.log(params.row.projectId)
         if (params.row.closed) {
           return (
-            <Button variant="contained" color="primary" onClick={() => navigate(`/auction/${params.row.id}`)}>
+            <Button variant="contained" color="primary" onClick={() => navigate(`/auction/detail/${params.row.id}`)}>
               Ver detalle
             </Button>
           );
