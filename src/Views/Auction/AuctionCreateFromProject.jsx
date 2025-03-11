@@ -20,7 +20,7 @@ const AuctionCreateFromProject = () => {
     getProject(id)
       .then((response) => {
         setProjectData(response);
-
+        console.log(response)
         if (response.auction && response.auction.length > 0) {
           setAuctionData(response.auction[0]);
         }
@@ -81,7 +81,9 @@ const AuctionCreateFromProject = () => {
     },    
   });
 
-  if (!projectData || (projectData.auction && !auctionData)) {
+    console.log(!auctionData)
+
+  if (!projectData) {
     return <div>Cargando datos del proyecto y subasta...</div>;
   }
 

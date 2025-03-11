@@ -16,17 +16,15 @@ const ProjectListClient = () => {
   const fetchProjects = () => {
     getProjectsForClient()
       .then(response => {
-        // Se asume que la respuesta contiene response.data con un arreglo de proyectos.
-        const rows = response.map(project => ({
-          id: project._id,
-          title: project.title,
-          auctionStatus:
-            project.auction && project.auction.length > 0
-              ? !project.auction[0].closed
-                ? 'Cerrada'
-                : 'Abierta'
-              : 'Sin subasta',
-        }));
+        // Filtrar solo proyectos que tengan subasta (auction existe y tiene al menos un elemento)
+        const rows = response
+          .filter(project => project.auction && project.auction.length > 0)
+          .map(project => ({
+            id: project._id,
+            title: project.title,
+            // Suponiendo que en el endpoint de lanzamiento, cuando closed es false la subasta está abierta
+            auctionStatus: project.auction[0].closed ? 'Cerrada' : 'Abierta'
+          }));
         setProjects(rows);
         setLoading(false);
       })
@@ -41,18 +39,13 @@ const ProjectListClient = () => {
   }, []);
 
   const handleViewDetail = (id) => {
-    // Redirige al detalle del proyecto, donde se muestra la información sin savingsOwner.
     navigate(`/project/${id}`);
   };
 
   const columns = [
     { field: 'id', headerName: 'ID', width: 70, hide: true },
     { field: 'title', headerName: 'Nombre del proyecto', width: 200 },
-    {
-      field: 'auctionStatus',
-      headerName: 'Estado de la subasta',
-      width: 180,
-    },
+    { field: 'auctionStatus', headerName: 'Estado de la subasta', width: 180 },
     {
       field: 'acciones',
       headerName: 'Acciones',
