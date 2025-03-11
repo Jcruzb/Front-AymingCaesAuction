@@ -34,8 +34,8 @@ const AuctionCreateFromProject = () => {
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      project: id, 
-      durationDays: auctionData ? auctionData.durationDays : '',
+      project: id,
+      durationDays: auctionData?.durationDays || '',
       submit: null,
     },
     validationSchema: Yup.object({
@@ -66,8 +66,8 @@ const AuctionCreateFromProject = () => {
     },
   });
 
-  if (!projectData) {
-    return <div>Cargando datos del proyecto...</div>;
+  if (!projectData || (projectData.auction && !auctionData)) {
+    return <div>Cargando datos del proyecto y subasta...</div>;
   }
 
   return (

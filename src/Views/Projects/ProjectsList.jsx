@@ -18,6 +18,7 @@ const ProjectsList = () => {
   const fetchProjects = () => {
     getProjects()
       .then(response => {
+        console.log(response)
         // Se asume que la respuesta contiene response.data con un arreglo de proyectos.
         const rows = response.map(project => ({
           id: project._id,
@@ -111,17 +112,33 @@ const ProjectsList = () => {
       disableColumnMenu: true,
       renderCell: (params) => {
         const hasAuction = params.row.auctionStatus !== 'Sin subasta';
+        const auction = params.row.auction;
+    
+        const isLaunched = auction && auction.launched;
+    
+        let buttonText = 'Subastar';
+        let buttonColor = 'primary';
+        let handleClick = () => handleAuction(params.row.id, auction, false);
+    
+        if (hasAuction) {
+          if (isLaunched) {
+            buttonText = 'Ver Subasta';
+            buttonColor = 'secondary';
+            handleClick = () => handleAuction(params.row.id, auction, true);
+          } else {
+            buttonText = 'Lanzar Subasta';
+            buttonColor = 'warning';
+            handleClick = () => navigate(`/projectsAuction/${params.row.id}`);
+          }
+        }
+    
         return (
-          <Button
-            variant="contained"
-            color={hasAuction ? 'secondary' : 'primary'} // Si tiene subasta, botón secundario
-            onClick={() => handleAuction(params.row.id,params.row.auction, hasAuction)}
-          >
-            {hasAuction ? 'Ver Subasta' : 'Subastar'}
+          <Button variant="contained" color={buttonColor} onClick={handleClick}>
+            {buttonText}
           </Button>
         );
       },
-    },
+    }    
   ];
 
   return (
