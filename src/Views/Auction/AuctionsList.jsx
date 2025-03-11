@@ -15,7 +15,6 @@ const AuctionsList = () => {
   const fetchAuctions = () => {
     getAuctions()
       .then(response => {
-          console.log(response)
         const rows = response.map(auction => ({
           id: auction._id,
           projectTitle: auction.project ? auction.project.title : 'N/A',
@@ -88,7 +87,6 @@ const AuctionsList = () => {
       filterable: false,
       disableColumnMenu: true,
       renderCell: (params) => {
-        console.log(params.row.projectId)
         if (params.row.closed) {
           return (
             <Button variant="contained" color="primary" onClick={() => navigate(`/auction/detail/${params.row.id}`)}>

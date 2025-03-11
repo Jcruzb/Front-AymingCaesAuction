@@ -19,7 +19,6 @@ const AuctionCreateFromProject = () => {
   useEffect(() => {
     getProject(id)
       .then((response) => {
-        console.log(response)
         setProjectData(response);
 
         if (response.auction && response.auction.length > 0) {
