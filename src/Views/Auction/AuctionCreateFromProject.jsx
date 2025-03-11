@@ -5,7 +5,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Box, Button, Stack, TextField, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { getProject } from '../../Services/ProjectService';
-import { createAuction, launchAuction } from '../../Services/AuctionService'; 
+import { createAuction, launchAuction, editAuction } from '../../Services/AuctionService'; 
 import AuctionModal from './AuctionModal';
 
 const AuctionCreateFromProject = () => {
@@ -46,10 +46,26 @@ const AuctionCreateFromProject = () => {
     }),
     onSubmit: (values, helpers) => {
       if (auctionData) {
-
-        setModalOpen(true);
-        helpers.setSubmitting(false);
+        // Si ya existe la subasta, actualizamos los días por si fueron modificados
+        const updatedAuction = {
+          ...auctionData,
+          durationDays: values.durationDays,
+        };
+    
+        editAuction(auctionData._id, updatedAuction)
+          .then((updated) => {
+            setAuctionData(updated); // Actualiza los datos con lo nuevo
+            setModalOpen(true);
+            helpers.setSubmitting(false);
+          })
+          .catch((err) => {
+            helpers.setErrors({
+              submit: err.response?.data?.message || 'Error al actualizar la subasta',
+            });
+            helpers.setSubmitting(false);
+          });
       } else {
+        // Crear nueva subasta
         createAuction(values)
           .then((response) => {
             setAuctionData(response);
@@ -63,7 +79,7 @@ const AuctionCreateFromProject = () => {
             helpers.setSubmitting(false);
           });
       }
-    },
+    },    
   });
 
   if (!projectData || (projectData.auction && !auctionData)) {
