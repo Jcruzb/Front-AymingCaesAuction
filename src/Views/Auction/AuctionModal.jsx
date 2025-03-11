@@ -4,8 +4,6 @@ import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import { lauchAuction } from '../../Services/AuctionService';
-import { useNavigate } from 'react-router';
 
 const style = {
   position: 'absolute',
@@ -21,16 +19,7 @@ const style = {
   pb: 3,
 };
 
-const AuctionModal = ({ open, onClose, auction, project, id }) => {
-
-  const navigate = useNavigate()
-
-  const handleLaunchAuction = () => {
-    lauchAuction(id, project).
-      then(() => navigate('/home'))
-      .catch((err) => console.log(err))
-  }
-
+const AuctionModal = ({ open, onClose, auction, project, onConfirm }) => {
   return (
     <Modal
       open={open}
@@ -40,7 +29,7 @@ const AuctionModal = ({ open, onClose, auction, project, id }) => {
     >
       <Box sx={style}>
         <Typography id="auction-modal-title" variant="h6" component="h2">
-          Detalles de la Subasta
+          Confirmar Datos de la Subasta
         </Typography>
         <Box sx={{ mt: 2 }}>
           <Typography>
@@ -55,15 +44,31 @@ const AuctionModal = ({ open, onClose, auction, project, id }) => {
             </Typography>
           )}
           <Typography>
-            <strong>Ahorro Generado:</strong> {project.savingsGenerated.toLocaleString('es-ES')} MWh
+            <strong>Ahorro Generado:</strong>{' '}
+            {project.savingsGenerated
+              ? project.savingsGenerated.toLocaleString('es-ES')
+              : ''}{' '}
+            MWh
           </Typography>
           <Typography>
             <strong>Duración (días):</strong> {auction.durationDays}
           </Typography>
         </Box>
         <Box sx={{ mt: 3, textAlign: 'center' }}>
-          <Button variant="contained" color="primary" onClick={handleLaunchAuction}>
-            Lanzar Subasta
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={onConfirm}
+          >
+            Confirmar y Lanzar Subasta
+          </Button>
+          <Button
+            variant="outlined"
+            color="error"
+            onClick={onClose}
+            sx={{ mt: 1 }}
+          >
+            Cancelar
           </Button>
         </Box>
       </Box>

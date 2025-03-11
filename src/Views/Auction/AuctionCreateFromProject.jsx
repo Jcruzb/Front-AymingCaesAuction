@@ -1,24 +1,30 @@
 // src/Views/Auction/AuctionCreateFromProject.jsx
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Box, Button, Stack, TextField, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { getProject } from '../../Services/ProjectService';
-import { createAuction } from '../../Services/AuctionService';
+import { createAuction, launchAuction } from '../../Services/AuctionService'; 
 import AuctionModal from './AuctionModal';
 
 const AuctionCreateFromProject = () => {
-  const { id } = useParams(); // id del proyecto
+  const { id } = useParams();
+  const navigate = useNavigate();
   const [projectData, setProjectData] = useState(null);
   const [auctionData, setAuctionData] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
 
+
   useEffect(() => {
     getProject(id)
       .then((response) => {
-        // Se asume que la respuesta trae el proyecto completo
+        console.log(response)
         setProjectData(response);
+
+        if (response.auction && response.auction.length > 0) {
+          setAuctionData(response.auction[0]);
+        }
       })
       .catch((error) => {
         console.error('Error al obtener el proyecto:', error);
@@ -28,8 +34,8 @@ const AuctionCreateFromProject = () => {
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      project: id, // se envía el id del proyecto en el body
-      durationDays: '',
+      project: id, 
+      durationDays: auctionData ? auctionData.durationDays : '',
       submit: null,
     },
     validationSchema: Yup.object({
@@ -39,23 +45,24 @@ const AuctionCreateFromProject = () => {
         .required('La duración es obligatoria'),
     }),
     onSubmit: (values, helpers) => {
-        createAuction(values)
-        .then((response) => {
-            console.log(response)
-          // Guardamos los datos de la subasta creada
-          setAuctionData(response);
-          // Abrimos el modal
-        })
-        .then(() =>{
-            setModalOpen(true);
-        })
-        .catch((err) => {
-          helpers.setErrors({
-            submit: err.response?.data?.message || 'Error al crear la subasta',
-          });
-          helpers.setSubmitting(false);
-        })      
+      if (auctionData) {
 
+        setModalOpen(true);
+        helpers.setSubmitting(false);
+      } else {
+        createAuction(values)
+          .then((response) => {
+            setAuctionData(response);
+            setModalOpen(true);
+            helpers.setSubmitting(false);
+          })
+          .catch((err) => {
+            helpers.setErrors({
+              submit: err.response?.data?.message || 'Error al crear la subasta',
+            });
+            helpers.setSubmitting(false);
+          });
+      }
     },
   });
 
@@ -74,20 +81,15 @@ const AuctionCreateFromProject = () => {
         p: 3,
       }}
     >
-      <Box
-        sx={{
-          maxWidth: 550,
-          width: '100%',
-          px: 3,
-          py: '100px',
-        }}
-      >
+      <Box sx={{ maxWidth: 550, width: '100%', px: 3, py: '100px' }}>
         <Stack spacing={1} sx={{ mb: 3 }}>
-          <Typography variant="h4">Lanzar Subasta</Typography>
+          <Typography variant="h4">
+            {auctionData ? 'Lanzar Subasta' : 'Crear Subasta'}
+          </Typography>
         </Stack>
         <form noValidate onSubmit={formik.handleSubmit}>
           <Stack spacing={3}>
-            {/* Mostrar el nombre del proyecto (a nivel visual) */}
+            {/* Muestra el nombre del proyecto (solo a nivel visual) */}
             <TextField
               fullWidth
               label="Proyecto"
@@ -95,7 +97,7 @@ const AuctionCreateFromProject = () => {
               value={projectData.title}
               disabled
             />
-            {/* Campo para la duración de la subasta */}
+            {/* Campo para la duración */}
             <TextField
               fullWidth
               label="Duración de la subasta (días)"
@@ -104,8 +106,12 @@ const AuctionCreateFromProject = () => {
               value={formik.values.durationDays}
               onBlur={formik.handleBlur}
               onChange={formik.handleChange}
-              error={Boolean(formik.touched.durationDays && formik.errors.durationDays)}
-              helperText={formik.touched.durationDays && formik.errors.durationDays}
+              error={
+                Boolean(formik.touched.durationDays && formik.errors.durationDays)
+              }
+              helperText={
+                formik.touched.durationDays && formik.errors.durationDays
+              }
             />
           </Stack>
           {formik.errors.submit && (
@@ -113,7 +119,14 @@ const AuctionCreateFromProject = () => {
               {formik.errors.submit}
             </Typography>
           )}
-          <Button fullWidth size="large" sx={{ mt: 3 }} type="submit" variant="contained">
+          <Button
+            fullWidth
+            size="large"
+            sx={{ mt: 3 }}
+            type="submit"
+            variant="contained"
+            color={auctionData ? 'success' : 'primary'}
+          >
             {auctionData ? 'Lanzar Subasta' : 'Crear Subasta'}
           </Button>
         </form>
@@ -123,7 +136,14 @@ const AuctionCreateFromProject = () => {
             onClose={() => setModalOpen(false)}
             auction={auctionData}
             project={projectData}
-            id={auctionData._id}
+            onConfirm={() => {
+              // Llama al endpoint de lanzamiento y redirige a /auctions si tiene éxito
+              launchAuction(auctionData._id, projectData)
+                .then(() => navigate('/auctions'))
+                .catch((err) =>
+                  console.error('Error al lanzar la subasta:', err)
+                );
+            }}
           />
         )}
       </Box>
