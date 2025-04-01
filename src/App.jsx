@@ -30,6 +30,7 @@ function App() {
       {/* Rutas protegidas */}
       <Route element={<ProtectedRoute />}>
         <Route path="/home" element={<Home />} />
+        
 
         {/* Rutas exclusivas para administradores */}
         <Route element={<RoleProtectedRoute allowedRoles={['administrador']} />}>
