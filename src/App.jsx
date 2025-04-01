@@ -1,4 +1,3 @@
-// src/App.jsx
 import { Route, Routes } from 'react-router-dom'; // Importa desde react-router-dom
 import NotFound from './Views/NotFound/NotFound';
 import Login from './Views/Login/Login';
@@ -26,6 +25,7 @@ function App() {
     <Routes>
       {/* Rutas públicas */}
       <Route path="/login" element={<Login />} />
+      <Route path="/" element={<Login />} />
 
       {/* Rutas protegidas */}
       <Route element={<ProtectedRoute />}>
