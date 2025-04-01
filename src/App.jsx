@@ -1,4 +1,3 @@
-// src/App.jsx
 import { Route, Routes } from 'react-router-dom'; // Importa desde react-router-dom
 import NotFound from './Views/NotFound/NotFound';
 import Login from './Views/Login/Login';
@@ -30,6 +29,7 @@ function App() {
       {/* Rutas protegidas */}
       <Route element={<ProtectedRoute />}>
         <Route path="/home" element={<Home />} />
+        
 
         {/* Rutas exclusivas para administradores */}
         <Route element={<RoleProtectedRoute allowedRoles={['administrador']} />}>
