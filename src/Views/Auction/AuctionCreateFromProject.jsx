@@ -5,7 +5,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Box, Button, Stack, TextField, Typography, Switch, FormControlLabel } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { getProject } from '../../Services/ProjectService';
-import { createAuction, launchAuction, editAuction } from '../../Services/AuctionService'; 
+import { createAuction, launchAuction, editAuction } from '../../Services/AuctionService';
 import AuctionModal from './AuctionModal';
 
 const AuctionCreateFromProject = () => {
@@ -34,6 +34,7 @@ const AuctionCreateFromProject = () => {
     initialValues: {
       project: id,
       durationDays: auctionData?.durationDays || '',
+      minBid: auctionData?.minBid ?? 0, // 👈 aquí añadimos minBid
       minBidIncrement: auctionData?.minBidIncrement ?? 0.5,
       notificationConfig: {
         dailyNotification: auctionData?.notificationConfig?.dailyNotification ?? true,
@@ -43,12 +44,15 @@ const AuctionCreateFromProject = () => {
         },
       },
       submit: null,
-    },
+    },    
     validationSchema: Yup.object({
       durationDays: Yup.number()
         .typeError('Debe ser un número')
         .min(1, 'La duración debe ser al menos 1 día')
         .required('La duración es obligatoria'),
+      minBid: Yup.number()
+        .typeError('Debe ser un número')
+        .required('El valor mínimo de la puja es obligatorio'),
       minBidIncrement: Yup.number()
         .typeError('Debe ser un número')
         .min(0.1, 'El incremento mínimo debe ser al menos 0.1')
@@ -60,20 +64,22 @@ const AuctionCreateFromProject = () => {
           frequencyHours: Yup.number().when('active', (active, schema) => {
             return active
               ? schema
-                  .typeError('Debe ser un número')
-                  .min(1, 'La frecuencia mínima es de 1 hora')
-                  .required('La frecuencia es obligatoria')
+                .typeError('Debe ser un número')
+                .min(1, 'La frecuencia mínima es de 1 hora')
+                .required('La frecuencia es obligatoria')
               : schema;
           }),
         }),
       }),
     }),
     onSubmit: (values, helpers) => {
+      console.log(values)
       if (auctionData) {
         // Actualizar la subasta existente
         const updatedAuction = {
           ...auctionData,
           durationDays: values.durationDays,
+          minBid: values.minBid,
           minBidIncrement: values.minBidIncrement,
           notificationConfig: values.notificationConfig
         };
@@ -105,8 +111,10 @@ const AuctionCreateFromProject = () => {
             helpers.setSubmitting(false);
           });
       }
-    },    
+    },
   });
+
+
 
   if (!projectData) {
     return <div>Cargando datos del proyecto y subasta...</div>;
@@ -151,10 +159,22 @@ const AuctionCreateFromProject = () => {
               error={Boolean(formik.touched.durationDays && formik.errors.durationDays)}
               helperText={formik.touched.durationDays && formik.errors.durationDays}
             />
+            {/* Campo para el valor mínimo de la puja */}
+            <TextField
+              fullWidth
+              label="Valor mínimo de la puja (€/MWh)"
+              name="minBid"
+              type="number"
+              value={formik.values.minBid}
+              onBlur={formik.handleBlur}
+              onChange={formik.handleChange}
+              error={Boolean(formik.touched.minBid && formik.errors.minBid)} // ✅ CORRECTO
+              helperText={formik.touched.minBid && formik.errors.minBid}
+            />
             {/* Campo para el incremento mínimo */}
             <TextField
               fullWidth
-              label="Incremento mínimo de puja"
+              label="Incremento mínimo de puja (€/MWh)"
               name="minBidIncrement"
               type="number"
               value={formik.values.minBidIncrement}
