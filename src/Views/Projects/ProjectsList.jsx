@@ -13,18 +13,22 @@ const ProjectsList = () => {
   const [loading, setLoading] = useState(true);
   const [columnVisibility, setColumnVisibility] = useState({ id: false });
 
+
   const navigate = useNavigate();
 
   const fetchProjects = () => {
     getProjects()
       .then(response => {
         // Se asume que la respuesta contiene response.data con un arreglo de proyectos.
-        const rows = response.map(project => ({
+        const rows = response.map(project => (
+          console.log(project.auction[0]),
+          {
+          
           id: project._id,
           title: project.title,
           auctionStatus:
             project.auction && project.auction.length > 0
-              ? !project.auction[0].closed
+              ? project.auction[0].closed
                 ? 'Cerrada'
                 : 'Abierta'
               : 'Sin subasta',

@@ -42,8 +42,10 @@ const AuctionDetail = () => {
     }
 
     // Extraer detalles del proyecto
-    const { title, savingsGenerated, durationDays, closed } = auction.project || auction;
+    const { title, savingsGenerated, durationDays } = auction.project || auction;
     const createdAtValue = auction.createdAt;
+
+
 
     return (
         <Paper sx={{ p: 3, maxWidth: 800, margin: '20px auto' }}>
@@ -67,7 +69,7 @@ const AuctionDetail = () => {
                     })}
                 </Typography>
                 <Typography variant="subtitle1">
-                    <strong>Estado:</strong> {closed ? "Cerrada" : "Abierta"}
+                    <strong>Estado:</strong> {auction.closed ? "Cerrada" : "Abierta"}
                 </Typography>
 
                 {/* Divider */}
