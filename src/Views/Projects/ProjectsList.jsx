@@ -1,11 +1,12 @@
 import { DataGrid } from '@mui/x-data-grid';
 import Paper from '@mui/material/Paper';
-import { Button, Container, IconButton } from '@mui/material';
+import { Button, Container, IconButton, Typography } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { getProjects, deleteProject } from '../../Services/ProjectService';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { Colorize, FormatColorTextOutlined } from '@mui/icons-material';
 
 
 const ProjectsList = () => {
@@ -20,10 +21,8 @@ const ProjectsList = () => {
     getProjects()
       .then(response => {
         // Se asume que la respuesta contiene response.data con un arreglo de proyectos.
-        const rows = response.map(project => (
-          console.log(project.auction[0]),
-          {
-          
+        const rows = response.map(project => ({
+
           id: project._id,
           title: project.title,
           auctionStatus:
@@ -32,7 +31,7 @@ const ProjectsList = () => {
                 ? 'Cerrada'
                 : 'Abierta'
               : 'Sin subasta',
-              auction:project.auction[0]
+          auction: project.auction[0]
         }));
         setProjects(rows);
         setLoading(false);
@@ -87,6 +86,18 @@ const ProjectsList = () => {
       field: 'auctionStatus',
       headerName: 'Estado de la subasta',
       width: 180,
+      renderCell: (params) => {
+        let color = 'gray';
+
+        if (params.value === 'Cerrada') color = 'warning';
+        if (params.value === 'Abierta') color = 'success';
+
+        return (
+          <Typography color={color} style={{ fontWeight: 'bold' }}>
+            {params.value}
+          </Typography>
+        );
+      }
     },
     {
       field: 'acciones',
@@ -116,13 +127,13 @@ const ProjectsList = () => {
       renderCell: (params) => {
         const hasAuction = params.row.auctionStatus !== 'Sin subasta';
         const auction = params.row.auction;
-    
+
         const isLaunched = auction && auction.launched;
-    
+
         let buttonText = 'Subastar';
         let buttonColor = 'primary';
         let handleClick = () => handleAuction(params.row.id, auction, false);
-    
+
         if (hasAuction) {
           if (isLaunched) {
             buttonText = 'Ver Subasta';
@@ -134,14 +145,14 @@ const ProjectsList = () => {
             handleClick = () => navigate(`/projectsAuction/${params.row.id}`);
           }
         }
-    
+
         return (
           <Button variant="contained" color={buttonColor} onClick={handleClick}>
             {buttonText}
           </Button>
         );
       },
-    }    
+    }
   ];
 
   return (

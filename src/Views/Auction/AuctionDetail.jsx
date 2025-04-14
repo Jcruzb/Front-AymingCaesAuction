@@ -28,11 +28,10 @@ const AuctionDetail = () => {
 
     const notify = () => {
         norifyAuction(id)
-            .then(() => { navigate('/projects')})
-            .catch(() => { console.log('Error')})
+            .then(() => { navigate('/projects') })
+            .catch(() => { console.log('Error') })
     }
 
-    console.log(auction)
 
     if (loading) {
         return <Typography>Cargando subasta...</Typography>;
@@ -69,8 +68,12 @@ const AuctionDetail = () => {
                     })}
                 </Typography>
                 <Typography variant="subtitle1">
-                    <strong>Estado:</strong> {auction.closed ? "Cerrada" : "Abierta"}
+                    <strong>Estado: </strong>
+                    <span style={{ color: auction.closed ? 'orange' : 'green', fontWeight: 'bold' }}>
+                        {auction.closed ? 'Cerrada' : 'Abierta'}
+                    </span>
                 </Typography>
+
 
                 {/* Divider */}
                 <Box sx={{ mt: 3, mb: 2, borderTop: "2px solid #ccc" }} />
