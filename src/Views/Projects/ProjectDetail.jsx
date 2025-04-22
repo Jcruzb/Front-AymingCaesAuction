@@ -29,18 +29,29 @@ const ProjectDetail = () => {
       });
   }, [id]);
 
+  console.log(project)
+
   useEffect(() => {
-    if (project && user && project.auction.length > 0) {
-      console.log(project.auction[0]._id)
+    if (!project || !user) return;
+
+    const auctionExists = project.auction && project.auction.length > 0;
+
+    if (auctionExists) {
       getBidForAuctionAndCompany(project.auction[0]._id, user.company)
         .then(response => {
+          console.log(response)
           setCompanyBid(response);
         })
         .catch(() => {
+          console.log('Error al obtener la puja de la empresa');
           setCompanyBid(null);
         });
+    } else {
+      // Si no hay subasta, aseguramos que no haya puja
+      setCompanyBid(null);
     }
   }, [project, user]);
+
 
   const handleClose = () => {
     setModalOpen(false);
@@ -62,7 +73,7 @@ const ProjectDetail = () => {
           </Typography>
           {project.projectType === 'Estandarizado' && (
             <Typography variant="subtitle1">
-              <strong>Proyecto Estandarizado:</strong> {project.standardizedProject}
+              <strong>Proyecto Estandarizado:</strong> {`${project.standardizedProject.code} - ${project.standardizedProject.name}`}
             </Typography>
           )}
           <Typography variant="subtitle1">
@@ -70,7 +81,7 @@ const ProjectDetail = () => {
           </Typography>
           {project.attachedDocuments && project.attachedDocuments.length > 0 && (
             <Typography variant="subtitle1">
-              <strong>Documentos Adjuntos:</strong> 
+              <strong>Documentos Adjuntos:</strong>
               {project.attachedDocuments.join(', ') || 'No se adjuntaron archivos para este proyecto'}
             </Typography>
           )}
