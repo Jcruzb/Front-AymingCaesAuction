@@ -1,7 +1,7 @@
 // src/Views/Projects/ProjectListClient.jsx
 import { DataGrid } from '@mui/x-data-grid';
 import Paper from '@mui/material/Paper';
-import { Container, IconButton } from '@mui/material';
+import { Container, IconButton, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -34,6 +34,8 @@ const ProjectListClient = () => {
       });
   };
 
+  console.log(projects)
+
   useEffect(() => {
     fetchProjects();
   }, []);
@@ -45,7 +47,23 @@ const ProjectListClient = () => {
   const columns = [
     { field: 'id', headerName: 'ID', width: 70, hide: true },
     { field: 'title', headerName: 'Nombre del proyecto', width: 200 },
-    { field: 'auctionStatus', headerName: 'Estado de la subasta', width: 180 },
+    {
+      field: 'auctionStatus',
+      headerName: 'Estado de la subasta',
+      width: 180,
+      renderCell: (params) => {
+        let color = 'gray';
+  
+        if (params.value === 'Cerrada') color = 'warning';
+        if (params.value === 'Abierta') color = 'success';
+  
+        return (
+          <Typography color={color} style={{ fontWeight: 'bold' }}>
+            {params.value}
+          </Typography>
+        );
+      }
+    },
     {
       field: 'acciones',
       headerName: 'Acciones',
