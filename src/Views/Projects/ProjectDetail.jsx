@@ -39,7 +39,6 @@ const ProjectDetail = () => {
     if (auctionExists) {
       getBidForAuctionAndCompany(project.auction[0]._id, user.company)
         .then(response => {
-          console.log(response)
           setCompanyBid(response);
         })
         .catch(() => {

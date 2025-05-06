@@ -40,7 +40,7 @@ const AuctionModal = ({ open, onClose, auction, project, onConfirm }) => {
           </Typography>
           {project.projectType === 'Estandarizado' && (
             <Typography>
-              <strong>Proyecto Estandarizado:</strong> {project.standardizedProject}
+              <strong>Proyecto Estandarizado:</strong> {`${project.standardizedProject.code} - ${project.standardizedProject.name}`}
             </Typography>
           )}
           <Typography>

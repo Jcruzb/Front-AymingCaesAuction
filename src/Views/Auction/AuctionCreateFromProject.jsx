@@ -73,7 +73,6 @@ const AuctionCreateFromProject = () => {
       }),
     }),
     onSubmit: (values, helpers) => {
-      console.log(values)
       if (auctionData) {
         // Actualizar la subasta existente
         const updatedAuction = {
@@ -114,6 +113,7 @@ const AuctionCreateFromProject = () => {
     },
   });
 
+  console.log(projectData)
 
 
   if (!projectData) {
