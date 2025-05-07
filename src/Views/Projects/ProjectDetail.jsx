@@ -20,6 +20,8 @@ const ProjectDetail = () => {
   useEffect(() => {
     getPublicProjectDetail(id)
       .then(response => {
+        console.log(response);
+
         setProject(response);
         setLoading(false);
       })
@@ -61,6 +63,17 @@ const ProjectDetail = () => {
   if (!project) return <Typography>Proyecto no encontrado</Typography>;
 
   const auction = project.auction[0];
+  const allBids = auction.bids || [];
+
+  // Obtener la puja máxima actual
+  const highestBid = allBids.length > 0
+    ? Math.max(...allBids.map(b => b.bidPrice))
+    : null;
+
+  // Calcular el mínimo requerido para la nueva puja
+  const minimumRequiredBid = highestBid !== null
+    ? highestBid + auction.minBidIncrement
+    : auction.minBid + auction.minBidIncrement;
 
   return (
     <Box sx={{ p: 3 }}>
@@ -126,10 +139,14 @@ const ProjectDetail = () => {
               </Typography>
             </Paper>
           ) : (
-            <BidForm onBidSubmit={(value) => {
-              setBidAmount(value);
-              setModalOpen(true);
-            }} />
+            <BidForm
+              onBidSubmit={(value) => {
+                setBidAmount(value);
+                setModalOpen(true);
+              }}
+              minBid={minimumRequiredBid} // ← ya es el valor requerido final
+            />
+
           )}
         </>
       )}

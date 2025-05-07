@@ -4,7 +4,7 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { Button, TextField, Stack, Typography } from '@mui/material';
 
-const BidForm = ({ onBidSubmit }) => {
+const BidForm = ({ onBidSubmit, minBid }) => {
   const formik = useFormik({
     initialValues: {
       bidAmount: '',
@@ -13,7 +13,10 @@ const BidForm = ({ onBidSubmit }) => {
       bidAmount: Yup.number()
         .typeError('Debe ser un número')
         .positive('El monto debe ser positivo')
-        .required('El monto de la puja es obligatorio'),
+        .required('El monto de la puja es obligatorio')
+        .min(minBid, `El monto de la puja debe ser mayor o igual a ${minBid} €`)
+
+
     }),
     onSubmit: (values, { setSubmitting }) => {
       onBidSubmit(values.bidAmount);
@@ -26,7 +29,7 @@ const BidForm = ({ onBidSubmit }) => {
       <Stack spacing={2}>
         <TextField
           fullWidth
-          label="Monto de la Puja (€/MWh)"
+          label={`Monto de mínimo la Puja: ${minBid} (€/MWh)`}
           name="bidAmount"
           type="number"
           value={formik.values.bidAmount}
