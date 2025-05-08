@@ -7,6 +7,8 @@ import { getBidForAuctionAndCompany } from '../../Services/BidService';
 import { useAuthContext } from '../../Contexts/AuthContext';
 import BidForm from '../Bids/BidForm';
 import BidConfirmationModal from '../Bids/BidConfirmationModal';
+import StarIcon from '@mui/icons-material/Star';
+
 
 const ProjectDetail = () => {
   const { id } = useParams();
@@ -15,13 +17,11 @@ const ProjectDetail = () => {
   const [loading, setLoading] = useState(true);
   const [bidAmount, setBidAmount] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [companyBid, setCompanyBid] = useState(null);
+  const [companyBids, setCompanyBids] = useState([]);
 
   useEffect(() => {
     getPublicProjectDetail(id)
       .then(response => {
-        console.log(response);
-
         setProject(response);
         setLoading(false);
       })
@@ -31,8 +31,6 @@ const ProjectDetail = () => {
       });
   }, [id]);
 
-  console.log(project)
-
   useEffect(() => {
     if (!project || !user) return;
 
@@ -41,18 +39,16 @@ const ProjectDetail = () => {
     if (auctionExists) {
       getBidForAuctionAndCompany(project.auction[0]._id, user.company)
         .then(response => {
-          setCompanyBid(response);
+          setCompanyBids(response);
         })
         .catch(() => {
-          console.log('Error al obtener la puja de la empresa');
-          setCompanyBid(null);
+          console.log('Error al obtener las pujas de la empresa');
+          setCompanyBids([]);
         });
     } else {
-      // Si no hay subasta, aseguramos que no haya puja
-      setCompanyBid(null);
+      setCompanyBids([]);
     }
   }, [project, user]);
-
 
   const handleClose = () => {
     setModalOpen(false);
@@ -65,12 +61,14 @@ const ProjectDetail = () => {
   const auction = project.auction[0];
   const allBids = auction.bids || [];
 
-  // Obtener la puja máxima actual
   const highestBid = allBids.length > 0
     ? Math.max(...allBids.map(b => b.bidPrice))
     : null;
 
-  // Calcular el mínimo requerido para la nueva puja
+  const myBestBid = companyBids.length > 0
+    ? companyBids.reduce((max, bid) => bid.bidPrice > max.bidPrice ? bid : max, companyBids[0])
+    : null;
+
   const minimumRequiredBid = highestBid !== null
     ? highestBid + auction.minBidIncrement
     : auction.minBid + auction.minBidIncrement;
@@ -102,21 +100,41 @@ const ProjectDetail = () => {
 
       <Divider sx={{ mb: 3 }} />
 
-      {/* SUBASTA CERRADA */}
       {auction.closed ? (
-        companyBid ? (
-          <Paper sx={{ p: 3, backgroundColor: '#f5f5f5' }}>
-            <Typography variant="h6">Tu Puja</Typography>
-            <Typography variant="subtitle1">
-              <strong>Monto Ofrecido:</strong> {companyBid.bidPrice} €/MWh
-            </Typography>
-            <Typography variant="subtitle1">
-              <strong>Fecha de Creación:</strong> {new Date(companyBid.createdAt).toLocaleString()}
-            </Typography>
-            <Typography variant="subtitle1">
-              <strong>Realizada por:</strong> {companyBid.client.name}
-            </Typography>
-          </Paper>
+        companyBids.length > 0 ? (
+          <>
+            <Typography variant="h6" mb={2}>Tus Pujas</Typography>
+            {companyBids
+              .sort((a, b) => b.bidPrice - a.bidPrice)
+              .map((bid) => {
+                const isBest = myBestBid && bid._id === myBestBid._id;
+                return (
+                  <Paper
+                    key={bid._id}
+                    sx={{
+                      p: 3,
+                      backgroundColor: isBest ? '#fff3e0' : '#f5f5f5',
+                      border: isBest ? '2px solidrgb(38, 172, 255)' : 'none',
+                      mb: 2,
+                    }}
+                  >
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                      <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
+                        <strong>Monto Ofrecido:</strong> {bid.bidPrice} €/MWh
+                      </Typography>
+                      {isBest && <StarIcon color="warning" titleAccess="Puja más alta realizada por tu empresa" />}
+                    </Stack>
+                    <Typography variant="subtitle1">
+                      <strong>Fecha de Creación:</strong> {new Date(bid.createdAt).toLocaleString()}
+                    </Typography>
+                    <Typography variant="subtitle1">
+                      <strong>Realizada por:</strong> {bid.client.name}
+                    </Typography>
+                  </Paper>
+                );
+              })}
+
+          </>
         ) : (
           <Typography variant="body1" color="text.secondary" sx={{ mt: 2 }}>
             La subasta ya ha sido cerrada y no se recibieron ofertas de tu parte. ¡Esperamos tu participación en próximas oportunidades!
@@ -124,29 +142,43 @@ const ProjectDetail = () => {
         )
       ) : (
         <>
-          {/* SUBASTA ABIERTA */}
-          {companyBid ? (
-            <Paper sx={{ p: 3, backgroundColor: '#f5f5f5' }}>
-              <Typography variant="h6">Tu Puja</Typography>
-              <Typography variant="subtitle1">
-                <strong>Monto Ofrecido:</strong> {companyBid.bidPrice} €/MWh
-              </Typography>
-              <Typography variant="subtitle1">
-                <strong>Fecha de Creación:</strong> {new Date(companyBid.createdAt).toLocaleString()}
-              </Typography>
-              <Typography variant="subtitle1">
-                <strong>Realizada por:</strong> {companyBid.client.name}
-              </Typography>
-            </Paper>
-          ) : (
-            <BidForm
-              onBidSubmit={(value) => {
-                setBidAmount(value);
-                setModalOpen(true);
-              }}
-              minBid={minimumRequiredBid} // ← ya es el valor requerido final
-            />
+          {companyBids.length > 0 && (
+            <>
+              <Typography variant="h6" mb={2}>Tus Pujas</Typography>
+              {companyBids
+                .sort((a, b) => b.bidPrice - a.bidPrice)
+                .map((bid) => (
+                  <Paper key={bid._id} sx={{ p: 3, backgroundColor: '#f5f5f5', mb: 2 }}>
+                    <Typography variant="subtitle1">
+                      <strong>Monto Ofrecido:</strong> {bid.bidPrice} €/MWh
+                    </Typography>
+                    <Typography variant="subtitle1">
+                      <strong>Fecha de Creación:</strong> {new Date(bid.createdAt).toLocaleString()}
+                    </Typography>
+                    <Typography variant="subtitle1">
+                      <strong>Realizada por:</strong> {bid.client.name}
+                    </Typography>
+                  </Paper>
+                ))}
+            </>
+          )}
 
+          {(!myBestBid || myBestBid.bidPrice < highestBid) && (
+            <>
+              {myBestBid && (
+                <Typography variant='subtitle1' color='warning.main' my={1}>
+                  <strong>Tu puja fue superada</strong>
+                </Typography>
+              )}
+              <Typography>Si deseas, puedes aumentar tu oferta:</Typography>
+              <BidForm
+                onBidSubmit={(value) => {
+                  setBidAmount(value);
+                  setModalOpen(true);
+                }}
+                minBid={minimumRequiredBid}
+              />
+            </>
           )}
         </>
       )}
